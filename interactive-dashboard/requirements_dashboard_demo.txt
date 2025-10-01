@@ -1,0 +1,23 @@
+# Interactive BI Dashboard Demo Requirements
+# Demonstrates Plotly Dash skills for business intelligence dashboard development
+
+# Core dashboard framework
+dash==2.14.1
+plotly==5.17.0
+
+# Data processing libraries (essential for BI work)
+pandas==2.1.1
+numpy==1.24.3
+
+# Additional visualization and UI components
+dash-bootstrap-components==1.5.0
+
+# For SQL demonstrations and database work
+# sqlite3 is built into Python - no installation needed
+
+# Optional: Enhanced dashboard components
+dash-daq==0.5.0
+
+# Note to self: Version pinning is crucial for production dashboards
+# Dash updates can break callback functions, so always pin versions
+# in real projects to ensure reproducible deployments
