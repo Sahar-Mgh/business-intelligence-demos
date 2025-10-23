@@ -18,7 +18,7 @@ This repository showcases comprehensive business intelligence and data analytics
 
 Built to demonstrate skills in modern BI stack development, from backend SQL analytics to frontend interactive dashboards.
 
-<img width="1680" height="1285" alt="image" src="https://github.com/user-attachments/assets/188f4e51-489b-4ff5-a4dc-390becf70b71" />
+<img width="1676" height="1280" alt="image" src="https://github.com/user-attachments/assets/5d767796-d990-458f-a4c3-c62b83b7ca5c" />
 
 
 ---
@@ -202,5 +202,6 @@ This project is available for educational and portfolio purposes. Please provide
 *Showcasing modern business intelligence capabilities for data-driven organizations*
 
 </div>
+
 
 
