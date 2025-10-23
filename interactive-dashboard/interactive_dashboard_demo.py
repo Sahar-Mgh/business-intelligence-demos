@@ -67,6 +67,24 @@ app.layout = html.Div([
                style={'textAlign': 'center', 'color': '#7f8c8d', 'fontSize': 16})
     ]),
     
+    # Interactive Filter - Simple dropdown to show interactivity
+    html.Div([
+        html.Label("🎯 Filter by Customer Segment:", 
+                   style={'fontWeight': 'bold', 'marginRight': 10, 'fontSize': 16}),
+        dcc.Dropdown(
+            id='segment-filter',
+            options=[
+                {'label': 'All Segments', 'value': 'All'},
+                {'label': 'Budget', 'value': 'Budget'},
+                {'label': 'Premium', 'value': 'Premium'},
+                {'label': 'Enterprise', 'value': 'Enterprise'}
+            ],
+            value='All',  # Default value
+            clearable=False,
+            style={'width': '300px', 'display': 'inline-block'}
+        )
+    ], style={'textAlign': 'center', 'marginBottom': 30}),
+    
     # KPI Cards Row
     html.Div([
         html.Div([
@@ -116,7 +134,7 @@ app.layout = html.Div([
         ], style={'width': '48%', 'float': 'right', 'display': 'inline-block'})
     ]),
     
-    # Data Table
+    # Data Table - Now updates based on filter
     html.Div([
         html.H3("🔍 High-Risk Customers", style={'color': '#2c3e50'}),
         dash_table.DataTable(
@@ -128,7 +146,6 @@ app.layout = html.Div([
                 {'name': 'Churn Risk', 'id': 'churn_probability', 'type': 'numeric', 'format': {'specifier': '.1%'}},
                 {'name': 'Segment', 'id': 'segment'}
             ],
-            data=customer_data.nlargest(10, 'churn_probability').to_dict('records'),
             style_cell={'textAlign': 'left', 'padding': '10px'},
             style_header={'backgroundColor': '#3498db', 'color': 'white', 'fontWeight': 'bold'},
             style_data_conditional=[
@@ -213,20 +230,27 @@ def update_customer_segments(_):
 
 @app.callback(
     Output('churn-analysis', 'figure'),
-    Input('churn-analysis', 'id')
+    Input('segment-filter', 'value')  
 )
-def update_churn_analysis(_):
-    # Create a copy of the data and ensure size values are positive
-    plot_data = customer_data.copy()
-    plot_data['total_charges_abs'] = plot_data['total_charges'].abs()
+def update_churn_analysis(selected_segment):
+    # Filter data based on selected segment
+    if selected_segment == 'All':
+        filtered_data = customer_data.copy()
+        title_suffix = '(All Segments)'
+    else:
+        filtered_data = customer_data[customer_data['segment'] == selected_segment].copy()
+        title_suffix = f'({selected_segment} Segment)'
+    
+    # Fix: Ensure total_charges is positive for size
+    filtered_data['total_charges_abs'] = filtered_data['total_charges'].abs()
     
     fig = px.scatter(
-        plot_data, 
+        filtered_data, 
         x='tenure_months', 
         y='monthly_charges',
         color='churn_probability',
-        size='total_charges_abs',  # Use absolute values for marker size
-        title='🚨 Churn Risk Analysis',
+        size='total_charges_abs',  # Use absolute value for size
+        title=f'🚨 Churn Risk Analysis {title_suffix}',
         labels={
             'tenure_months': 'Tenure (Months)',
             'monthly_charges': 'Monthly Charges (€)',
@@ -282,6 +306,23 @@ def update_financial_metrics(_):
 # Note to self: Dual y-axis charts are tricky - the scales need to be meaningful.
 # Here, bars for signups (smaller numbers) and line for active users (larger numbers)
 # works well visually and tells the retention story.
+
+@app.callback(
+    Output('high-risk-table', 'data'),
+    Input('segment-filter', 'value')  # Table updates when segment changes
+)
+def update_high_risk_table(selected_segment):
+    # Filter data based on selected segment
+    if selected_segment == 'All':
+        filtered_data = customer_data
+    else:
+        filtered_data = customer_data[customer_data['segment'] == selected_segment]
+    
+    # Return top 10 highest risk customers from filtered data
+    return filtered_data.nlargest(10, 'churn_probability').to_dict('records')
+
+# Note to self: Making the table interactive adds real value - users can drill down
+# into specific segments to see which customers need attention. Simple but effective!
 
 if __name__ == '__main__':
     print("🚀 Starting Interactive Dashboard Demo...")
