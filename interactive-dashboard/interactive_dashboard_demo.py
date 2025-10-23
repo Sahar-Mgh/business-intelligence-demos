@@ -123,7 +123,7 @@ app.layout = html.Div([
             id='high-risk-table',
             columns=[
                 {'name': 'Customer ID', 'id': 'customer_id'},
-                {'name': 'Monthly Charges', 'id': 'monthly_charges', 'type': 'numeric', 'format': {'specifier': '€,.0f'}},
+                {'name': 'Monthly Charges (€)', 'id': 'monthly_charges', 'type': 'numeric', 'format': {'specifier': ',.0f'}},
                 {'name': 'Tenure (Months)', 'id': 'tenure_months', 'type': 'numeric', 'format': {'specifier': '.1f'}},
                 {'name': 'Churn Risk', 'id': 'churn_probability', 'type': 'numeric', 'format': {'specifier': '.1%'}},
                 {'name': 'Segment', 'id': 'segment'}
@@ -216,12 +216,16 @@ def update_customer_segments(_):
     Input('churn-analysis', 'id')
 )
 def update_churn_analysis(_):
+    # Create a copy of the data and ensure size values are positive
+    plot_data = customer_data.copy()
+    plot_data['total_charges_abs'] = plot_data['total_charges'].abs()
+    
     fig = px.scatter(
-        customer_data, 
+        plot_data, 
         x='tenure_months', 
         y='monthly_charges',
         color='churn_probability',
-        size='total_charges',
+        size='total_charges_abs',  # Use absolute values for marker size
         title='🚨 Churn Risk Analysis',
         labels={
             'tenure_months': 'Tenure (Months)',
@@ -285,4 +289,4 @@ if __name__ == '__main__':
     print("💡 This demonstrates Plotly Dash skills for BI dashboard development")
     print("\n🧠 Key Learning: Interactive dashboards require thinking about user workflows,")
     print("   not just data visualization. Each chart should answer specific business questions.")
-    app.run_server(debug=True, port=8050)
+    app.run_server(debug=True, port=8080)
